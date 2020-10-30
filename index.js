@@ -7,12 +7,14 @@ const cookieParser = require("cookie-parser");
 const express = require("express");
 const path = require("path");
 const mongoose = require('mongoose');
+var morgan = require('morgan')
 
 const app = express()
 
 let server = http.createServer(app);
+morgan(':method :url :status :res[content-length] - :response-time ms')
 
-mongoose.connect('mongodb+srv://parkcoop:lol@react-graphql.wwkja.mongodb.net/notes?retryWrites=true&w=majority', {
+mongoose.connect(process.env.MONGO_STRING, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -32,11 +34,11 @@ server.on("error", error => {
   
     switch (error.code) {
       case "EACCES":
-        console.error(`Port ${5000} requires elevated privileges`);
+        console.error(`Port ${process.env.PORT} requires elevated privileges`);
         process.exit(1);
         break;
       case "EADDRINUSE":
-        console.error(`Port ${5000} is already in use`);
+        console.error(`Port ${process.env.PORT} is already in use`);
         process.exit(1);
         break;
       default:
@@ -44,8 +46,8 @@ server.on("error", error => {
     }
 });
 
-server.listen(5000, () => {
-    console.log(`Listening on http://localhost:${5000}`);
+server.listen(process.env.PORT, () => {
+    console.log(`Listening on http://localhost:${process.env.PORT}`);
 });
 app.use(bodyParser.json())
 // app.use(cookieParser)

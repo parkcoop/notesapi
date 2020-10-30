@@ -16,7 +16,10 @@ router.post('/signup', async (req, res, next) => {
     console.log(req.body)
     let { username, fullName, password } = req.body
     try {
-        if (!username || !fullName || !password) return new Error('Missing required paramaters.')
+        if (!username || !fullName || !password) {
+            res.status(500)
+            res.send({msg: "Send all fields..."})
+        }
         const encryptedPassword = await bcrypt.hash(password, 10)
         const userCheck = await User.find({ username:username }, 
             (error, users) => {
@@ -25,7 +28,7 @@ router.post('/signup', async (req, res, next) => {
                 return users
         })
             
-        if (userCheck.length) return new Error(`The username "${username}" is already in use.`)
+        if (userCheck.length) return res.send(`The username "${username}" is already in use.`)
         const newUser = new User({
             username: username,
             password: encryptedPassword,
@@ -51,10 +54,14 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/login', async (req, res, next) => {
+    console.log("LOGGING IN", req.body)
     let { username, password } = req.body
     try {
         const user = await User.findOne({ username:username })
-        if (!user) return new Error('No user found')
+        if (!user) {
+            res.status(500)
+            res.send({msg: `${username} could not be found`})
+        }
         const valid = await bcrypt.compare(password, user.password)
         if (valid) {
             console.log(user)
@@ -71,7 +78,10 @@ router.post('/login', async (req, res, next) => {
                 token,
                 user,
             })
-        } else res.send(new Error('Invalid password'))
+        } else {
+            res.status(500)
+            res.send({msg: `Invalid credentials`})
+        }
     }
     catch (err) {
         console.log("ERROR LOGGING IN", err)
