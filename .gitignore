@@ -1,2 +1,30 @@
+node_nodules/
+# OSX
+#
+.DS_Store
+# text editors / IDEs
+*.swp
+*.swo
+.vscode
+*.sublime-*
+*.sh
+*.crt
+
+# OS X
+.DS_Store
+
+# npm
+node_modules
+npm-debug.log
+
+# yarn
+yarn.lock
+yarn-error.log
+
+# misc
+.idea
 .env
-node_nodules
+*.sh
+temp.json
+*.crt
+purpleid.pem
