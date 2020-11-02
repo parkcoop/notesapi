@@ -1,23 +1,19 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const Reminder = new Schema(
+const Note = new Schema(
     {
-        description: {
-            type: String,
-            required: true,
-        },
-        reminderDate: {
-            type: String,
-            required: true,
-        },
-        notificationId: {
-            type: String,
-            required: false,
-        },
         userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
+            type: String,
+            required: true,
+        },
+        type: {
+            type: String,
+            required: true,
+        },
+        body: {
+            type: String,
+            required: true,
         },
     },
     {
@@ -25,4 +21,4 @@ const Reminder = new Schema(
     },
 );
 
-module.exports = mongoose.model("Reminder", Reminder);
+module.exports = mongoose.model("Note", Note);
