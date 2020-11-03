@@ -8,7 +8,7 @@ const moment = require("moment");
 const Reminder = require("../schema/Reminder");
 const Note = require("../schema/Note");
 const Habit = require("../schema/Habit");
-
+const passport = require("passport");
 router.get("/", (req, res, next) => {
     console.log(req);
     res.json({ lol: "paarker" });
@@ -57,39 +57,32 @@ router.post("/signup", async (req, res, next) => {
         console.log("ERROR SIGNING UP", err);
     }
 });
-
-router.post("/login", async (req, res, next) => {
-    console.log("LOGGING IN", req.body);
-    let { username, password } = req.body;
-    try {
-        const user = await User.findOne({ username: username });
-        if (!user) {
-            res.status(500);
-            res.send({ msg: `${username} could not be found` });
+router.post("/login", (req, res, next) => {
+    passport.authenticate("local", (err, { user, token }, failureDetails) => {
+        if (err) {
+            res.status(500).json({
+                message: "Something went wrong authenticating user",
+            });
+            return;
         }
-        const valid = await bcrypt.compare(password, user.password);
-        if (valid) {
-            console.log(user);
-            const token = jwt.sign({ user }, process.env.APP_SECRET);
-            console.log("SIGNING COOKIE");
-            // res.cookie("token", token, {
-            //     httpOnly: false,
-            //     secure: false,
-            //     maxAge: 1000 * 60 * 60 * 24 * 7,
-            //     sameSite: 'None'
-            // })
-            console.log(token);
-            res.json({
+
+        if (!user) {
+            res.status(401).json(failureDetails);
+            return;
+        }
+
+        req.login(user, (err) => {
+            if (err) {
+                res.status(500).json({ message: "Session save went bad." });
+                return;
+            }
+
+            res.status(200).json({
                 token,
                 user,
             });
-        } else {
-            res.status(500);
-            res.send({ msg: `Invalid credentials` });
-        }
-    } catch (err) {
-        console.log("ERROR LOGGING IN", err);
-    }
+        });
+    })(req, res, next);
 });
 
 router.post("/reminder", async (req, res, next) => {
